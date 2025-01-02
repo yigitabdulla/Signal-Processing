@@ -7,11 +7,13 @@ import platform
 import psutil
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.metrics import confusion_matrix, accuracy_score
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, LSTM
 from keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 
 # Helper Function: Extract Features (MFCCs)
 def extract_features(file_list):
@@ -106,23 +108,38 @@ def machine_learning_section(X_train, X_test, y_train, y_test, class_names):
     train_features, train_labels = extract_features(X_train)
     test_features, test_labels = extract_features(X_test)
 
-    # Train Model
-    clf = RandomForestClassifier(n_estimators=100, random_state=42)
-    clf.fit(train_features, train_labels)
+    models = {
+        "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
+        "Gradient Boosting": GradientBoostingClassifier(random_state=42),
+        "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5),
+        "Support Vector Machine": SVC(kernel="linear", probability=True, random_state=42)
+    }
 
-    # Test Model and Measure Time
-    start_time = time.time()
-    predictions = clf.predict(test_features)
-    end_time = time.time()
+    best_model = None
+    best_accuracy = 0
 
-    # Metrics
-    accuracy = accuracy_score(test_labels, predictions)
-    print(f"\nMachine Learning Accuracy: {accuracy * 100:.2f}%")
-    print(f"ML Test Duration: {end_time - start_time:.4f} seconds")
+    for model_name, model in models.items():
+        # Train Model
+        start_time = time.time()
+        model.fit(train_features, train_labels)
+        predictions = model.predict(test_features)
+        end_time = time.time()
 
-    # Plot Confusion Matrix
-    cm = confusion_matrix(test_labels, predictions)
-    plot_confusion_matrix(cm, class_names, title="ML Confusion Matrix")
+        # Metrics
+        accuracy = accuracy_score(test_labels, predictions)
+        print(f"\n{model_name} Accuracy: {accuracy * 100:.2f}%")
+        print(f"{model_name} Test Duration: {end_time - start_time:.4f} seconds")
+
+        if accuracy > best_accuracy:
+            best_accuracy = accuracy
+            best_model = model
+
+        # Confusion Matrix
+        cm = confusion_matrix(test_labels, predictions)
+        plot_confusion_matrix(cm, class_names, title=f"{model_name} Confusion Matrix")
+
+    print(f"\nBest Model: {best_model.__class__.__name__} with Accuracy: {best_accuracy * 100:.2f}%")
+
 
 def deep_learning_section(X_train, X_test, y_train, y_test, class_names):
     # Preprocess Data for Deep Learning Section
