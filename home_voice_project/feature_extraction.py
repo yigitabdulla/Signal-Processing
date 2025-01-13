@@ -32,7 +32,7 @@ def extract_features_from_folders(root_folder):
 root_folder = "sinyal isleme"  # Your root folder path
 features, labels = extract_features_from_folders(root_folder)
 
-# Save to CSV
+# Save to CSV file
 df = pd.DataFrame(features)
 df['label'] = labels
 df.to_csv('features.csv', index=False)
