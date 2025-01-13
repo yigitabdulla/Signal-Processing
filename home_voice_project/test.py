@@ -27,7 +27,9 @@ def extract_features(file_list):
             labels.append(label)
         except Exception as e:
             print(f"Error processing file {file_path}: {e}")
+        print(labels)
     return np.array(features), np.array(labels)
+
 
 # Helper Function: Print System Properties
 def print_system_properties():
