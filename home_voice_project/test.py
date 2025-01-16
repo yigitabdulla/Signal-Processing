@@ -27,7 +27,6 @@ def extract_features(file_list):
             labels.append(label)
         except Exception as e:
             print(f"Error processing file {file_path}: {e}")
-        print(labels)
     return np.array(features), np.array(labels)
 
 
@@ -104,11 +103,15 @@ def prepare_data(file_list, class_names):
     )
     return X_train, X_test, y_train, y_test
 
-# Machine Learning Section
 def machine_learning_section(X_train, X_test, y_train, y_test, class_names):
     # Feature Extraction
     train_features, train_labels = extract_features(X_train)
     test_features, test_labels = extract_features(X_test)
+
+    # Split training data for validation
+    train_features_split, val_features, train_labels_split, val_labels = train_test_split(
+        train_features, train_labels, test_size=0.2, random_state=42
+    )
 
     models = {
         "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
@@ -123,13 +126,19 @@ def machine_learning_section(X_train, X_test, y_train, y_test, class_names):
     for model_name, model in models.items():
         # Train Model
         start_time = time.time()
-        model.fit(train_features, train_labels)
+        model.fit(train_features_split, train_labels_split)
         predictions = model.predict(test_features)
         end_time = time.time()
 
-        # Metrics
+        # Validation Accuracy (for traditional methods)
+        if model_name in ["Random Forest", "Gradient Boosting", "K-Nearest Neighbors", "Support Vector Machine"]:
+            val_predictions = model.predict(val_features)
+            val_accuracy = accuracy_score(val_labels, val_predictions)
+            print(f"{model_name} Validation Accuracy: {val_accuracy * 100:.2f}%")
+
+        # Test Accuracy
         accuracy = accuracy_score(test_labels, predictions)
-        print(f"\n{model_name} Accuracy: {accuracy * 100:.2f}%")
+        print(f"\n{model_name} Test Accuracy: {accuracy * 100:.2f}%")
         print(f"{model_name} Test Duration: {end_time - start_time:.4f} seconds")
 
         if accuracy > best_accuracy:
@@ -140,7 +149,7 @@ def machine_learning_section(X_train, X_test, y_train, y_test, class_names):
         cm = confusion_matrix(test_labels, predictions)
         plot_confusion_matrix(cm, class_names, title=f"{model_name} Confusion Matrix")
 
-    print(f"\nBest Model: {best_model.__class__.__name__} with Accuracy: {best_accuracy * 100:.2f}%")
+    print(f"\nBest Model: {best_model.__class__.__name__} with Test Accuracy: {best_accuracy * 100:.2f}%")
 
 
 def deep_learning_section(X_train, X_test, y_train, y_test, class_names):
