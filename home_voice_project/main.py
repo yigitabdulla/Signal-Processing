@@ -1,4 +1,5 @@
 import os
+import pickle
 import time
 import librosa
 import numpy as np
@@ -152,6 +153,24 @@ def machine_learning_section(X_train, X_test, y_train, y_test, class_names):
 
     print(f"\nBest Model: {best_model.__class__.__name__} with Test Accuracy: {best_accuracy * 100:.2f}%")
 
+    # Save the best model
+    with open("best_model.pkl", "wb") as model_file:
+        pickle.dump(best_model, model_file)
+
+    # Test the best model
+    test_start_time = time.time()
+    final_predictions = best_model.predict(test_features)
+    test_end_time = time.time()
+    final_test_duration = test_end_time - test_start_time
+
+    final_test_accuracy = accuracy_score(test_labels, final_predictions)
+    print(f"\nBest Model Test Accuracy: {final_test_accuracy * 100:.2f}%")
+    print(f"Final Test Duration: {final_test_duration:.4f} seconds")
+
+    # Save the final confusion matrix
+    final_cm = confusion_matrix(test_labels, final_predictions)
+    plot_confusion_matrix(final_cm, class_names, title="Best Model Confusion Matrix")
+
 
 def deep_learning_section(X_train, X_test, y_train, y_test, class_names):
     # Preprocess Data for Deep Learning Section
@@ -283,7 +302,7 @@ def deep_learning_section(X_train, X_test, y_train, y_test, class_names):
 
 # Main Function
 if __name__ == "__main__":
-    dataset_dir = "sinyal isleme"
+    dataset_dir = "sinyal isleme deneme"
     file_list, class_names = load_dataset(dataset_dir)
     X_train, X_test, y_train, y_test = prepare_data(file_list, class_names)
 
@@ -373,7 +392,7 @@ if __name__ == "__main__":
     plt.show()
 
     print("\n--- Machine Learning Section ---")
-    #machine_learning_section(X_train, X_test, y_train, y_test, class_names)
+    machine_learning_section(X_train, X_test, y_train, y_test, class_names)
 
     print("\n--- Deep Learning Section ---")
     deep_learning_section(X_train, X_test, y_train, y_test, class_names)
