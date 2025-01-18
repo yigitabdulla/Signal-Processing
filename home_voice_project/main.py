@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import platform
 import psutil
 from sklearn.model_selection import train_test_split, StratifiedKFold
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, LSTM, Dropout, BatchNormalization
@@ -132,15 +132,16 @@ def machine_learning_section(X_train, X_test, y_train, y_test, class_names):
         predictions = model.predict(test_features)
         end_time = time.time()
 
-        # Validation Accuracy (for traditional methods)
-        if model_name in ["Random Forest", "Gradient Boosting", "K-Nearest Neighbors", "Support Vector Machine"]:
-            val_predictions = model.predict(val_features)
-            val_accuracy = accuracy_score(val_labels, val_predictions)
-            print(f"{model_name} Validation Accuracy: {val_accuracy * 100:.2f}%")
-
-        # Test Accuracy
+        # Test Metrics
         accuracy = accuracy_score(test_labels, predictions)
+        precision = precision_score(test_labels, predictions, average="weighted")
+        recall = recall_score(test_labels, predictions, average="weighted")
+        f1 = f1_score(test_labels, predictions, average="weighted")
+
         print(f"\n{model_name} Test Accuracy: {accuracy * 100:.2f}%")
+        print(f"{model_name} Test Precision: {precision:.2f}")
+        print(f"{model_name} Test Recall: {recall:.2f}")
+        print(f"{model_name} Test F1-Score: {f1:.2f}")
         print(f"{model_name} Test Duration: {end_time - start_time:.4f} seconds")
 
         if accuracy > best_accuracy:
@@ -164,7 +165,14 @@ def machine_learning_section(X_train, X_test, y_train, y_test, class_names):
     final_test_duration = test_end_time - test_start_time
 
     final_test_accuracy = accuracy_score(test_labels, final_predictions)
+    final_precision = precision_score(test_labels, final_predictions, average="weighted")
+    final_recall = recall_score(test_labels, final_predictions, average="weighted")
+    final_f1 = f1_score(test_labels, final_predictions, average="weighted")
+
     print(f"\nBest Model Test Accuracy: {final_test_accuracy * 100:.2f}%")
+    print(f"Best Model Test Precision: {final_precision:.2f}")
+    print(f"Best Model Test Recall: {final_recall:.2f}")
+    print(f"Best Model Test F1-Score: {final_f1:.2f}")
     print(f"Final Test Duration: {final_test_duration:.4f} seconds")
 
     # Save the final confusion matrix
@@ -221,7 +229,14 @@ def deep_learning_section(X_train, X_test, y_train, y_test, class_names):
     end_time = time.time()
 
     cnn_accuracy = accuracy_score(test_labels.argmax(axis=1), cnn_predictions.argmax(axis=1))
+    cnn_precision = precision_score(test_labels.argmax(axis=1), cnn_predictions.argmax(axis=1), average="weighted")
+    cnn_recall = recall_score(test_labels.argmax(axis=1), cnn_predictions.argmax(axis=1), average="weighted")
+    cnn_f1 = f1_score(test_labels.argmax(axis=1), cnn_predictions.argmax(axis=1), average="weighted")
+
     print(f"\nCNN Accuracy: {cnn_accuracy * 100:.2f}%")
+    print(f"CNN Precision: {cnn_precision:.4f}")
+    print(f"CNN Recall: {cnn_recall:.4f}")
+    print(f"CNN F1-Score: {cnn_f1:.4f}")
     print(f"CNN Test Duration: {end_time - start_time:.4f} seconds")
 
     cnn_cm = confusion_matrix(test_labels.argmax(axis=1), cnn_predictions.argmax(axis=1))
@@ -261,7 +276,14 @@ def deep_learning_section(X_train, X_test, y_train, y_test, class_names):
     end_time = time.time()
 
     lstm_accuracy = accuracy_score(test_labels.argmax(axis=1), lstm_predictions.argmax(axis=1))
+    lstm_precision = precision_score(test_labels.argmax(axis=1), lstm_predictions.argmax(axis=1), average="weighted")
+    lstm_recall = recall_score(test_labels.argmax(axis=1), lstm_predictions.argmax(axis=1), average="weighted")
+    lstm_f1 = f1_score(test_labels.argmax(axis=1), lstm_predictions.argmax(axis=1), average="weighted")
+
     print(f"\nLSTM Accuracy: {lstm_accuracy * 100:.2f}%")
+    print(f"LSTM Precision: {lstm_precision:.4f}")
+    print(f"LSTM Recall: {lstm_recall:.4f}")
+    print(f"LSTM F1-Score: {lstm_f1:.4f}")
     print(f"LSTM Test Duration: {end_time - start_time:.4f} seconds")
 
     lstm_cm = confusion_matrix(test_labels.argmax(axis=1), lstm_predictions.argmax(axis=1))
@@ -285,7 +307,14 @@ def deep_learning_section(X_train, X_test, y_train, y_test, class_names):
     # Make predictions with the loaded model
     loaded_model_predictions = loaded_model.predict(test_features.swapaxes(1, 2))
     loaded_model_accuracy = accuracy_score(test_labels.argmax(axis=1), loaded_model_predictions.argmax(axis=1))
+    loaded_model_precision = precision_score(test_labels.argmax(axis=1), loaded_model_predictions.argmax(axis=1), average="weighted")
+    loaded_model_recall = recall_score(test_labels.argmax(axis=1), loaded_model_predictions.argmax(axis=1), average="weighted")
+    loaded_model_f1 = f1_score(test_labels.argmax(axis=1), loaded_model_predictions.argmax(axis=1), average="weighted")
+
     print(f"\nLoaded Model Accuracy: {loaded_model_accuracy * 100:.2f}%")
+    print(f"Loaded Model Precision: {loaded_model_precision:.4f}")
+    print(f"Loaded Model Recall: {loaded_model_recall:.4f}")
+    print(f"Loaded Model F1-Score: {loaded_model_f1:.4f}")
 
     lstm_cm = confusion_matrix(test_labels.argmax(axis=1), loaded_model_predictions.argmax(axis=1))
     plot_confusion_matrix(lstm_cm, class_names, title="LSTM Confusion Matrix (Loaded Model)")
@@ -300,9 +329,10 @@ def deep_learning_section(X_train, X_test, y_train, y_test, class_names):
     plt.legend()
     plt.show()
 
+
 # Main Function
 if __name__ == "__main__":
-    dataset_dir = "sinyal isleme deneme"
+    dataset_dir = "sinyal isleme"
     file_list, class_names = load_dataset(dataset_dir)
     X_train, X_test, y_train, y_test = prepare_data(file_list, class_names)
 
