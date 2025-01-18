@@ -41,7 +41,7 @@ def print_system_properties():
     print(f"CPU Count: {psutil.cpu_count(logical=True)}")
     print(f"RAM: {round(psutil.virtual_memory().total / (1024 ** 3), 2)} GB\n")
 
-# Helper Function: Plot Confusion Matrix
+# Helper Function: Plot Confusion Matrixex
 def plot_confusion_matrix(cm, classes, title="Confusion Matrix"):
     plt.figure(figsize=(10, 8))
     plt.imshow(cm, interpolation="nearest", cmap=plt.cm.Blues)
