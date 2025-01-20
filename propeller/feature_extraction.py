@@ -5,12 +5,53 @@ import os
 
 
 def calculate_all_file_features(file_path):
+
+    file_name = os.path.basename(file_path)
+
+    # Determine if the file name contains 'scratch' or 'healthy'
+    condition = None
+    if 'scracth' in file_name.lower():
+        condition = 'scracth'
+    elif 'healthy' in file_name.lower():
+        condition = 'healthy'
+    elif 'notchlong' in file_name.lower():
+        condition = 'notchlong'
+    elif 'notchshort' in file_name.lower():
+        condition = 'notchshort'
+    elif 'singlecutlong' in file_name.lower():
+        condition = 'singlecutlong'
+    elif 'singlecutshort' in file_name.lower():
+        condition = 'singlecutshort'
+    elif 'twocutlong' in file_name.lower():
+        condition = 'twocutlong'
+    elif 'twocutshort' in file_name.lower():
+        condition = 'twocutshort'
+    elif 'warped' in file_name.lower():
+        condition = 'warped'
+    else:
+        condition = 'unknown'
+
+    # Save the condition to a CSV file
+    condition_csv = 'conditions.csv'
+
+    # Open the file in append mode and write only the condition value
+    with open(condition_csv, mode='a') as file:
+        if not os.path.exists(condition_csv) or os.path.getsize(condition_csv) == 0:
+            # Write the header only if the file is new or empty
+            file.write('Condition\n')
+        if condition:
+            file.write(f'{condition}\n')
+
     # Load the CSV file
     data = pd.read_csv(file_path)
+
+
 
     # Select the columns for STFT transformation
     columns_to_transform = ['Speed', 'Voice', 'Acceleration X', 'Acceleration Y', 'Acceleration Z', 'Gyro X', 'Gyro Y',
                             'Gyro Z']
+
+
 
     # Dictionary to hold features
     stft_features = {}
@@ -30,7 +71,6 @@ def calculate_all_file_features(file_path):
 
     # Function to calculate band features
     def calculate_band_features(frequencies, magnitude_spectrum, band):
-        print(band)
         band_indices = np.where((frequencies >= band[0]) & (frequencies < band[1]))[0]
         if len(band_indices) == 0 or np.max(band_indices) >= magnitude_spectrum.shape[0]:
             return 0, 0, 0, 0, 0, 0, 0
@@ -78,10 +118,12 @@ def calculate_all_file_features(file_path):
                 stft_features[f'{col}_{band_name}_peak_frequency'] = [peak_frequency]
                 stft_features[f'{col}_{band_name}_mean_frequency'] = [mean_frequency]
 
+
     # Convert to a DataFrame with column names and a single row
     features_df = pd.DataFrame(stft_features)
 
-    features_df.to_csv('output.csv', mode='a', index=False, header=not os.path.exists('output.csv'))
+
+    features_df.to_csv('output3.csv', mode='a', index=False, header=not os.path.exists('output3.csv'))
 
 
 # Folder path
@@ -93,3 +135,4 @@ for root, dirs, files in os.walk(folder_path):
         calculate_all_file_features(os.path.join(root, file))
 
 print("Band power feature extraction completed and saved with column names.")
+
